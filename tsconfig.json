@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "esModuleInterop": true,
+
+    /* Type Checking */
+    "strict": true,
+    "skipLibCheck": true,
+
+    /* Output directory for compiled files */
+    "outDir": "./dist",
+
+    /* Base directory to resolve non-relative module names */
+    "rootDir": "./src"
+  }
+}

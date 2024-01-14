@@ -1,0 +1,423 @@
+я вивчаю typescript, та отримав курсовий проект, завдання:
+"До нас звернувся невеликий приватний зоопарк для створення застосунку, який полегшить управління бізнесом.
+Нижче опис сутностей, які є на даний момент. Сприймайте це не як чітке ТЗ, а скоріше як підказки, які допоможуть в побудові програми. Ви вільні трактувати опис на свій розсуд, вибирати шаблони програмування (не обов'язково лише ті, що ми з вами розглянули) та підходи, будувати архітектуру, яка на ваш розсуд буде найбільш оптимальною.
+Плюсом буде, якщо ви залишите коментарі до свого коду. (Наприклад: "Тут я використав патерн Сінглтон, тому що....")
+Проєкт "Зоопарк":
+"Каса":
+Відповідає за продаж квитків. Квитки можуть бути трьох видів: дорослі, дитячі та сімейні.
+Кожен квиток має вартість.
+Під час продажу квитка, Каса додає дані про відвідувача у два списки: поточні відвідувачі та клієнти.
+"Поточні відвідувачі":
+Зберігає інформацію про відвідувачів, включаючи їхні імена та контактні дані.
+Можливість оповіщення відвідувачів за 15 хвилин до закриття і перед відходом.
+"Клієнти":
+Дані клієнтів зберігаються у Відділу реклами.
+Відділ реклами використовує цей список для розсилки новин про зоопарк і рекламні акції.
+"Відділ реклами":
+Відповідає за маркетингові та рекламні заходи.
+Використовує список клієнтів для розсилки новин про зоопарк і рекламні акції.
+"Виручка":
+Каса збирає дані про виручку за день.
+Ці дані передаються в Бухгалтерію.
+"Бухгалтерія":
+Відповідає за фінансове управління зоопарку.
+Розпоряджається бюджетом, включно з оплатою співробітників, закупівлею корму для тварин і обслуговуванням зоопарку.
+Зберігає дані про всіх співробітників, тварин і виплати.
+Можливість генерувати фінансові звіти.
+"Адміністрація":
+Відповідає за управління співробітниками і тваринами.
+Може додавати і видаляти співробітників і тварин.
+Створює сповіщення про рекламні акції та інші важливі події в зоопарку.
+"Тварини":
+Включає в себе інформацію про кожну тварину, таку як вид, ім'я, вік, здоров'я та інші характеристики.
+"Співробітники":
+Адміністрація може додавати і видаляти співробітників.
+Співробітники можуть мати різні посади та обов'язки, які слід враховувати.
+"Бюджет":
+Бухгалтерія розпоряджається бюджетом і стежить за фінансами зоопарку.
+Можливість вести бюджетний облік і надавати фінансові звіти."
+я почав з архітектури файлів:
+ZooApp
+│
+│
+├── src
+│   ├── interfaces
+│   │   ├── IAnimal.ts
+│   │   ├── IClient.ts
+│   │   ├── IEmployee.ts
+│   │   ├── ITicket.ts
+│   │
+│   ├── classes
+│   │   ├── Animal.ts
+│   │   ├── Client.ts
+│   │   ├── Employee.ts
+│   │   ├── Ticket.ts
+│   │
+│   ├── factories
+│   │   ├── AnimalFactory.ts
+│   │   ├── ClientFactory.ts
+│   │   ├── EmployeeFactory.ts
+│   │   ├── TicketFactory.ts
+│   │
+│   ├── departments
+│   │   ├── Administration.ts
+│   │   ├── AdvertisementDepartment.ts
+│   │   ├── TicketBooth.ts
+│   │
+│   ├── utils
+│   │   ├── Builder.ts
+│   │   ├── Director.ts
+│   │
+│   └── index.ts
+│
+└── package.json
+також реалізував  файли:
+
+IAnimal.ts
+```typescript
+interface IAnimal {
+    name: string;
+    type: string;
+    age: number;
+    health: number; // Здоров'я можна вимірювати за шкалою від 1 до 100
+    feed(): void; // Метод зв'язаний з годуванням тварини
+    checkHealth(): void; // Метод пов'язаний з перевіркою стану здоров'я тварини
+}
+```
+
+IClient.ts
+```typescript
+interface IClient {
+    name: string;
+    contact: string;
+    buyTicket(type: string): void; // Метод, який дозволяє клієнту купувати квитки
+}
+```
+
+IEmployee.ts
+```typescript
+interface IEmployee {
+    name: string;
+    position: string;
+    contact: string;
+    work(): void; // Метод, пов'язаний з виконанням роботи працівником
+}
+```
+
+ITicket.ts
+```typescript
+interface ITicket {
+    id: number;
+    type: string; // Тип квитка: 'дорослий', 'дитячий', 'сімейний'
+    price: number;
+    validate(): void; // Метод, що використовується для валідації квитка при вході
+}
+```
+
+Animal.ts
+```typescript
+class Animal implements IAnimal {
+    name: string;
+    type: string;
+    age: number;
+    health: number;
+
+    constructor(name: string, type: string, age: number, health: number) {
+        this.name = name;
+        this.type = type;
+        this.age = age;
+        this.health = health;
+    }
+
+    feed(): void {
+        console.log(`${this.name} is being fed.`);
+        // логіка годування тварини
+    }
+
+    checkHealth(): void {
+        console.log(`The health of ${this.name} is ${this.health}.`);
+        // логіка перевірки здоров'я
+    }
+}
+```
+
+Client.ts
+```typescript
+class Client implements IClient {
+    name: string;
+    contact: string;
+
+    constructor(name: string, contact: string) {
+        this.name = name;
+        this.contact = contact;
+    }
+
+    buyTicket(type: string): void {
+        console.log(`${this.name} has bought a ${type} ticket.`);
+        // Логіка для купівлі квитка
+    }
+}
+```
+
+Employee.ts
+```typescript
+class Employee implements IEmployee {
+    name: string;
+    position: string;
+    contact: string;
+
+    constructor(name: string, position: string, contact: string) {
+        this.name = name;
+        this.position = position;
+        this.contact = contact;
+    }
+
+    work(): void {
+        console.log(`Employee ${this.name} is working.`);
+        // Логіка щодо того, що працівник виконує роботу
+    };
+}
+```
+
+Ticket.ts
+
+```typescript
+class Ticket implements ITicket {
+    id: number;
+    type: string;
+    price: number;
+
+    constructor(id: number, type: string, price: number) {
+        this.id = id;
+        this.type = type;
+        this.price = price;
+    }
+
+    validate(): void {
+        console.log(`Ticket ${this.id} of type ${this.type} is validated.`);
+        // Логіка щодо валідації квитка
+    }
+}
+```
+
+Administration.ts
+```typescript
+class Administration {
+    private employeeFactory: EmployeeFactory;
+
+    constructor(employeeFactory: EmployeeFactory) {
+        this.employeeFactory = employeeFactory;
+    }
+
+    hireEmployee(name: string, position: string, contact: string): IEmployee {
+        const employee = this.employeeFactory.createEmployee(name, position, contact);
+        console.log(`Administration: Hired a new Employee: ${employee.name}`);
+        return employee;
+    }
+
+    // Інші методи і логіка, що стосуються адміністрації
+}
+```
+
+AdvertisementDepartment.ts
+```typescript
+class AdvertisementDepartment {
+    private clientFactory: ClientFactory;
+
+    constructor(clientFactory: ClientFactory) {
+        this.clientFactory = clientFactory;
+    }
+
+    addClient(name: string, contact: string): IClient {
+        const client = this.clientFactory.createClient(name, contact);
+        console.log(`Advertisement Department: Added a new client: ${client.name}`);
+        return client;
+    }
+
+    // Інші методи та логіка, що стосуються рекламного відділу
+}
+```
+
+TicketBooth.ts
+```typescript
+class TicketBooth {
+    private ticketFactory: TicketFactory;
+
+    constructor(ticketFactory: TicketFactory) {
+        this.ticketFactory = ticketFactory;
+    }
+
+    issueTicket(id: number, type: string, price: number): ITicket {
+        const ticket = this.ticketFactory.createTicket(id, type, price);
+        console.log(`TicketBooth: Issued a new ticket of type: ${ticket.type}`);
+        return ticket;
+    }
+
+    // more methods and logic relating to ticketing booth
+}
+```
+
+AnimalFactory.ts
+```typescript
+class AnimalFactory {
+    private cache: Map<string, IAnimal> = new Map();
+
+    createAnimal(name: string, type: string, age: number, health: number): IAnimal {
+        let cacheKey = `${type}_${age}_${health}`;
+        if (!this.cache.has(cacheKey)) {
+            const animal = new Animal(name, type, age, health);
+            this.cache.set(cacheKey, animal);
+            return animal;
+        }
+        // Create a new object with the same prototype and properties as the cached animal
+        const cachedAnimal = this.cache.get(cacheKey);
+        return Object.assign(Object.create(Object.getPrototypeOf(cachedAnimal)), cachedAnimal);
+    }
+}
+```
+
+ClientFactory.ts
+```typescript
+class ClientFactory {
+    createClient(name: string, contact: string): IClient {
+        return new Client(name, contact);
+    }
+}
+```
+
+EmployeeFactory.ts
+```typescript
+class EmployeeFactory {
+    private cache: Map<string, IEmployee> = new Map();
+
+    createEmployee(name: string, position: string, contact: string): IEmployee {
+        let cacheKey = `${position}_${contact}`;
+        if (!this.cache.has(cacheKey)) {
+            const employee = new Employee(name, position, contact);
+            this.cache.set(cacheKey, employee);
+            return employee;
+        }
+        const cachedEmployee = this.cache.get(cacheKey);
+        return Object.assign(Object.create(Object.getPrototypeOf(cachedEmployee)), cachedEmployee);
+    }
+}
+```
+
+TicketFactory.ts
+```typescript
+class TicketFactory {
+    createTicket(id: number, type: string, price: number): ITicket {
+        return new Ticket(id, type, price);
+    }
+}
+```
+
+Builder.ts
+```typescript
+interface ITicketBuilder {
+    setID(id: number): void;
+    setType(type: string): void;
+    setPrice(price: number): void;
+}
+
+class TicketBuilder implements ITicketBuilder {
+    private id: number;
+    private type: string;
+    private price: number;
+
+    setID(id: number): void {
+        this.id = id;
+    }
+
+    setType(type: string): void {
+        this.type = type;
+    }
+
+    setPrice(price: number): void {
+        this.price = price;
+    }
+
+    build(): Ticket {
+        return new Ticket(this.id, this.type, this.price);
+    }
+}
+```
+
+Director.ts
+```typescript
+class Director {
+    private builder: ITicketBuilder;
+
+    setBuilder(builder: ITicketBuilder): void {
+        this.builder = builder;
+    }
+
+    constructTicket(id: number, type: string, price: number): void {
+        this.builder.setID(id);
+        this.builder.setType(type);
+        this.builder.setPrice(price);
+    }
+}
+```
+
+index.ts
+```typescript
+// Ініціалізуйте фабрики
+const animalFactory = new AnimalFactory();
+const clientFactory = new ClientFactory();
+const employeeFactory = new EmployeeFactory();
+const ticketFactory = new TicketFactory();
+
+// Ініціалізуйте департменти
+const administration = new Administration(employeeFactory);
+const advertisementDepartment = new AdvertisementDepartment(clientFactory);
+const ticketBooth = new TicketBooth(ticketFactory);
+
+// Шаблон Builder у дії
+const director = new Director();
+const ticketBuilder = new TicketBuilder();
+director.setBuilder(ticketBuilder);
+
+// Логіка додатку
+function runApp(): void {
+    console.log("Running Zoo Application...\n");
+
+    // Додаємо декілька нових працівників
+    let employee: IEmployee = administration.hireEmployee("John Doe", "Manager", "john@zoo.com");
+    let vet: IEmployee = administration.hireEmployee("Jane Smith", "Vet", "jane@zoo.com");
+
+    // Додаємо декілька нових клієнтів
+    let client: IClient = advertisementDepartment.addClient("Alice Johnson", "alice@gmail.com");
+    let childClient: IClient = advertisementDepartment.addClient("Bob Brown", "bob@gmail.com");
+
+    // Випускаємо декілька квитків
+    director.constructTicket(1, "adult", 500);
+    let adultTicket: ITicket = ticketBuilder.build();
+    director.constructTicket(2, "child", 250);
+    let childTicket: ITicket = ticketBuilder.build();
+
+    // Продажа квитків
+    client.buyTicket(adultTicket.type);
+    childClient.buyTicket(childTicket.type);
+
+    // Додаємо кілька тварин
+    let tiger: IAnimal = animalFactory.createAnimal("Stripes", "Tiger", 5, 95);
+    let penguin: IAnimal = animalFactory.createAnimal("Waddles", "Penguin", 8, 87);
+    tiger.feed();
+    penguin.feed();
+
+    // Працівники виконують роботу
+    employee.work();
+    vet.work();
+}
+
+runApp();
+```
+також я маю такі поради поудосконаленню коду:
+1)Уникати magic strings/numbers: Краще уникати використання магічних стрічок/чисел (наприклад, "child" або 500 у методі constructTicket). Замість цього тримайте ці значення у константах, це покращить читабельність коду і спростить його подальшу підтримку.
+2)Обробка помилок та нестандартних ситуацій: Вважайте на те, як ваш код управляється з нестандартними сценаріями. Наприклад, що станеться, якщо користувач спробує купити квиток, якого не існує?
+3)Dependency Injection: Вище в ваших класах TicketBooth, AdvertisementDepartment та Administration містяться залежності (фабрики), які передаються через конструктор. Це гарна привичка, яка дотримує принцип впровадження залежностей. Однак, можливо, ви захочете створити більш розширений механізм впровадження залежностей, який буде відповідати за створення об'єктів і забезпечувати потрібні залежності.
+4)Перевірка типів: TypeScript надає нам можливість перевірки типів. Це може бути особливо корисно при роботі з фабриками, щоб переконатися, що ми створюємо об'єкти вірного типу.
+5)Коментарі: Схоже у вас вже є коментарі в деяких місцях, але не у всіх. Хороша практика - повноцінно документувати всі важливі частини вашого коду.
+
+почни з поради 1, покажи зміни
