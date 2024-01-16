@@ -1,5 +1,19 @@
-class EmployeeFactory {
+import {IEmployee} from "../interfaces/IEmployee";
+import {Employee} from "../classes/Employee";
+
+export class EmployeeFactory {
+    private static instance: EmployeeFactory;
     private cache: Map<string, IEmployee> = new Map();
+
+    private constructor() {
+    }
+
+    public static getInstance(): EmployeeFactory {
+        if (!EmployeeFactory.instance) {
+            EmployeeFactory.instance = new EmployeeFactory();
+        }
+        return EmployeeFactory.instance;
+    }
 
     createEmployee(name: string, position: string, contact: string): IEmployee {
         let cacheKey = `${position}_${contact}`;

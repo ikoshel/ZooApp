@@ -1,5 +1,9 @@
-interface IClient {
+import {Ticket} from "../classes/Ticket";
+
+export interface IClient {
     name: string;
     contact: string;
-    buyTicket(type: string): void; // Метод, який дозволяє клієнту купувати квитки
+    tickets: Ticket[];
+
+    buyTicket(id: number, type: string, price: number): void;
 }

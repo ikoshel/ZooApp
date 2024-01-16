@@ -1,6 +1,7 @@
-interface ITicket {
+export interface ITicket {
     id: number;
-    type: string; // Тип квитка: 'дорослий', 'дитячий', 'сімейний'
+    type: string;
     price: number;
-    validate(): void; // Метод, що використовується для валідації квитка при вході
+
+    validate(): void;
 }
